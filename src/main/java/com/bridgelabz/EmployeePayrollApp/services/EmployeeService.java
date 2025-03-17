@@ -1,73 +1,49 @@
 package com.bridgelabz.EmployeePayrollApp.services;
 
-import com.bridgelabz.EmployeePayrollApp.controller.EmployeeController;
-import com.bridgelabz.EmployeePayrollApp.dto.EmployeeDTO;
-import com.bridgelabz.EmployeePayrollApp.entities.EmployeeEntity;
+import com.bridgelabz.EmployeePayrollApp.model.Employee;
 import com.bridgelabz.EmployeePayrollApp.repositories.EmployeeRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmployeeService {
+    private final EmployeeRepository employeeRepository;
 
-    EmployeeRepository employeeRepository;
-
+    @Autowired
     public EmployeeService(EmployeeRepository employeeRepository) {
         this.employeeRepository = employeeRepository;
     }
 
-    public EmployeeDTO get(Long id){
-
-        EmployeeEntity empFound = employeeRepository.findById(id).orElseThrow(() -> new RuntimeException("Cannot find Employee with given id"));
-
-        EmployeeDTO empDto = new EmployeeDTO(empFound.getName(), empFound.getSalary());
-        empDto.setId(empFound.getId());
-
-        return empDto;
-
+    // Fetch all employees
+    public List<Employee> getAllEmployees() {
+        return employeeRepository.findAll();
     }
 
-    public EmployeeDTO create(EmployeeDTO newEmp){
-
-        EmployeeEntity newEntity = new EmployeeEntity(newEmp.getName(), newEmp.getSalary());
-
-        employeeRepository.save(newEntity);
-
-        EmployeeDTO emp = new EmployeeDTO(newEntity.getName(), newEntity.getSalary());
-
-        emp.setId(newEntity.getId());
-
-        return emp;
+    // Fetch employee by ID
+    public Optional<Employee> getEmployeeById(Long id) {
+        return employeeRepository.findById(id);
     }
 
-    public EmployeeDTO edit(EmployeeDTO emp, Long id){
-        //finding employee
-        EmployeeEntity foundEmp = employeeRepository.findById(id).orElseThrow(()->new RuntimeException("No employee found for given id"));
-
-        //updating details
-        foundEmp.setName(emp.getName());
-        foundEmp.setSalary(emp.getSalary());
-
-        //saving in database
-        employeeRepository.save(foundEmp);
-
-        //creating dto to return
-        EmployeeDTO employeeDTO = new EmployeeDTO(foundEmp.getName(), foundEmp.getSalary());
-        employeeDTO.setId(foundEmp.getId());
-
-
-        return employeeDTO;
-
+    // Add a new employee
+    public Employee createEmployee(Employee employee) {
+        return employeeRepository.save(employee);
     }
 
-    public String delete(Long id){
-
-        EmployeeEntity foundEmp = employeeRepository.findById(id).orElseThrow(()->new RuntimeException("No employee found for given id"));
-
-        employeeRepository.delete(foundEmp);
-
-        return "Employee Deleted";
-
+    // Update an employee
+    public Optional<Employee> updateEmployee(Long id, Employee updatedEmployee) {
+        return employeeRepository.findById(id).map(employee -> {
+            employee.setName(updatedEmployee.getName());
+            employee.setDepartment(updatedEmployee.getDepartment());
+            employee.setSalary(updatedEmployee.getSalary());
+            return employeeRepository.save(employee);
+        });
     }
 
-
+    // Delete an employee
+    public void deleteEmployee(Long id) {
+        employeeRepository.deleteById(id);
+    }
 }

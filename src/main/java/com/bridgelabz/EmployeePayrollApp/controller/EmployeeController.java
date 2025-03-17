@@ -1,38 +1,54 @@
 package com.bridgelabz.EmployeePayrollApp.controller;
 
-import com.bridgelabz.EmployeePayrollApp.dto.EmployeeDTO;
+import com.bridgelabz.EmployeePayrollApp.model.Employee;
 import com.bridgelabz.EmployeePayrollApp.services.EmployeeService;
+import com.bridgelabz.EmployeePayrollApp.dto.EmployeeDTO;
+import com.bridgelabz.EmployeePayrollApp.repositories.EmployeeRepository;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Optional;
+
 @RestController
-@RequestMapping("/employeepayrollservice")
+@RequestMapping("/employees")
 public class EmployeeController {
+    private final EmployeeService employeeService;
 
-    EmployeeService employeeService;
-
+    @Autowired
     public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
     }
 
-    //UC1 --> CRUD operations on employee database through REST API's
-    @GetMapping("/get/{id}")
-    public EmployeeDTO get(@PathVariable Long id){
-        return employeeService.get(id);
+    // GET: Fetch all employees
+    @GetMapping
+    public List<Employee> getAllEmployees() {
+        return employeeService.getAllEmployees();
     }
 
-    @PostMapping("/create")
-    public EmployeeDTO create(@RequestBody EmployeeDTO newEmp){
-        return employeeService.create(newEmp);
+    // GET: Fetch employee by ID
+    @GetMapping("/{id}")
+    public Optional<Employee> getEmployeeById(@PathVariable Long id) {
+        return employeeService.getEmployeeById(id);
     }
 
-    @PutMapping("/edit/{id}")
-    public EmployeeDTO edit(@RequestBody EmployeeDTO emp, @PathVariable Long id){
-        return employeeService.edit(emp, id);
+    // POST: Add a new employee
+    @PostMapping
+    public Employee createEmployee(@RequestBody Employee employee) {
+        return employeeService.createEmployee(employee);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id){
-        return employeeService.delete(id);
+    // PUT: Update an employee
+    @PutMapping("/{id}")
+    public Optional<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee updatedEmployee) {
+        return employeeService.updateEmployee(id, updatedEmployee);
     }
 
+    // DELETE: Remove an employee
+    @DeleteMapping("/{id}")
+    public void deleteEmployee(@PathVariable Long id) {
+        employeeService.deleteEmployee(id);
+    }
 }
